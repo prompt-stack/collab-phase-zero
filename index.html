@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Site Analysis | The Co-Llab Group</title>
 
+    <!-- Google Places API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWskbKQ5cjXKJYnZMMsfP0T7KtEcCo7eM&libraries=places"></script>
+
     <style>
         :root {
             --brand-navy: #2b5c8f;
@@ -259,6 +262,43 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Google Places Autocomplete Styling */
+        .pac-container {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            border-radius: 8px;
+            margin-top: 4px;
+            box-shadow: 0 10px 30px rgba(43, 92, 143, 0.15);
+            border: 1px solid #e2e8f0;
+        }
+
+        .pac-item {
+            padding: 10px 14px;
+            border-top: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .pac-item:first-child {
+            border-top: none;
+        }
+
+        .pac-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .pac-item-selected {
+            background-color: rgba(79, 179, 191, 0.1);
+        }
+
+        .pac-icon {
+            margin-right: 8px;
+        }
+
+        .pac-item-query {
+            color: var(--brand-navy);
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>
@@ -337,6 +377,30 @@
     </div>
 
     <script>
+        // Initialize Google Places Autocomplete
+        let autocomplete;
+
+        function initAutocomplete() {
+            const addressInput = document.getElementById("address");
+
+            autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                types: ['address'],
+                componentRestrictions: { country: 'us' }, // Restrict to US addresses
+                fields: ['formatted_address', 'address_components']
+            });
+
+            // Optional: Handle place selection
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (place.formatted_address) {
+                    addressInput.value = place.formatted_address;
+                }
+            });
+        }
+
+        // Initialize autocomplete when page loads
+        window.addEventListener('load', initAutocomplete);
+
         // DOM Elements
         const form = document.getElementById("intakeForm");
         const formState = document.getElementById("formState");
