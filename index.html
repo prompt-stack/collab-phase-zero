@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Site Analysis | The Co-Llab Group</title>
+
+    <style>
+        :root {
+            --brand-navy: #2b5c8f;
+            --brand-teal: #4fb3bf;
+            --brand-light-blue: #5ba8d8;
+            --brand-bg: #f0f4f8;
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --card-white: #ffffff;
+            --success-green: #10b981;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f4f8 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+        }
+
+        .card {
+            background: var(--card-white);
+            width: 100%;
+            max-width: 440px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(43, 92, 143, 0.12);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 50px rgba(43, 92, 143, 0.18);
+        }
+
+        /* Header Branding */
+        .brand-header {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-light-blue) 100%);
+            text-align: center;
+            padding: 2rem 1.5rem 1.5rem;
+            color: white;
+        }
+        .brand-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin: 0;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .brand-subtitle {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            opacity: 0.95;
+            margin-top: 0.5rem;
+            font-weight: 400;
+        }
+
+        /* Content Area */
+        .card-content {
+            padding: 2rem 2.5rem 2.5rem;
+        }
+
+        /* Form Elements */
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 0.5rem;
+            margin-top: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        label:first-of-type {
+            margin-top: 0;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+            background: #fafbfc;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--brand-teal);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 179, 191, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--brand-teal) 0%, var(--brand-light-blue) 100%);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(79, 179, 191, 0.3);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 179, 191, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* UTILITIES */
+        .hidden { display: none !important; }
+
+        /* LOADING STATE */
+        .loader-container {
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(79, 179, 191, 0.2);
+            border-top: 4px solid var(--brand-teal);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .loading-text {
+            font-weight: 700;
+            color: var(--brand-navy);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .loading-subtext {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            text-align: left;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            padding: 0.65rem 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            opacity: 0.4;
+            transition: all 0.4s ease;
+        }
+
+        .step-item.active {
+            opacity: 1;
+            color: var(--brand-navy);
+            font-weight: 600;
+        }
+
+        .step-item.completed {
+            opacity: 0.75;
+            color: var(--success-green);
+        }
+
+        .step-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.875rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.4s ease;
+        }
+
+        .step-item.active .step-icon {
+            border-color: var(--brand-teal);
+            background: var(--brand-teal);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step-item.completed .step-icon {
+            border-color: var(--success-green);
+            background: var(--success-green);
+            color: white;
+        }
+
+        /* SUCCESS STATE */
+        .success-container {
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+            padding: 2rem 0;
+        }
+        .check-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--success-green), #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+        }
+
+        .success-title {
+            color: var(--brand-navy);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 1rem 0;
+        }
+
+        .success-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="card">
+
+        <div class="brand-header">
+            <h1 class="brand-title">The Co-Llab Group</h1>
+            <p class="brand-subtitle">Helping You Imagine and Re-imagine Your Property Potential</p>
+        </div>
+
+        <div class="card-content">
+            <div id="formState">
+                <form id="intakeForm" action="https://formspree.io/f/xyzrlpvp" method="POST">
+
+                    <!-- Hidden field for custom email subject -->
+                    <input type="hidden" name="_subject" value="New Phase Zero Analysis Request">
+
+                    <label for="address">Property Address</label>
+                    <input type="text" name="address" id="address" placeholder="123 Main Street, City, State, ZIP" required autocomplete="street-address">
+
+                    <label for="vision">Project Vision (Optional)</label>
+                    <input type="text" name="vision" id="vision" placeholder="e.g., Mixed-use development, Affordable housing">
+
+                    <label for="email">Contact Email</label>
+                    <input type="email" name="email" id="email" placeholder="your.email@company.com" required autocomplete="email">
+
+                    <button type="submit">Start Analysis →</button>
+                </form>
+            </div>
+
+            <div id="loadingState" class="hidden loader-container">
+                <div class="spinner"></div>
+                <div id="loadingMessage" class="loading-text">Initializing Phase Zero Analysis...</div>
+                <p class="loading-subtext">Please do not close this window</p>
+
+                <div class="progress-steps" id="progressSteps">
+                    <div class="step-item" data-step="0">
+                        <div class="step-icon">1</div>
+                        <div class="step-text">Analyzing Site Characteristics</div>
+                    </div>
+                    <div class="step-item" data-step="1">
+                        <div class="step-icon">2</div>
+                        <div class="step-text">Accessing Zoning & Market Data</div>
+                    </div>
+                    <div class="step-item" data-step="2">
+                        <div class="step-icon">3</div>
+                        <div class="step-text">Researching Regulations</div>
+                    </div>
+                    <div class="step-item" data-step="3">
+                        <div class="step-icon">4</div>
+                        <div class="step-text">Evaluating Use Scenarios</div>
+                    </div>
+                    <div class="step-item" data-step="4">
+                        <div class="step-icon">5</div>
+                        <div class="step-text">Preparing Financial Models</div>
+                    </div>
+                    <div class="step-item" data-step="5">
+                        <div class="step-icon">6</div>
+                        <div class="step-text">Compiling Executive Brief</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="successState" class="hidden success-container">
+                <div class="check-icon">✓</div>
+                <h3 class="success-title">AI Analysis Complete</h3>
+                <p class="success-text">
+                    Our team is now reviewing the findings from our AI agents and will present them to you in an Executive Brief.
+                    <br><br>
+                    <strong>You can expect to receive an email within 24-48 hours</strong> with your Phase Zero Executive Brief and recommended next steps.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // DOM Elements
+        const form = document.getElementById("intakeForm");
+        const formState = document.getElementById("formState");
+        const loadingState = document.getElementById("loadingState");
+        const successState = document.getElementById("successState");
+        const loadingMessage = document.getElementById("loadingMessage");
+        const progressSteps = document.querySelectorAll(".step-item");
+
+        // Simulation Data - Matches Phase Zero Services
+        const loadingSteps = [
+            "Analyzing Site Characteristics...",
+            "Accessing Zoning & Market Conditions...",
+            "Researching Regulatory Requirements...",
+            "Evaluating Optimal Use Scenarios...",
+            "Preparing Pro Forma Financial Models...",
+            "Compiling Executive Brief..."
+        ];
+
+        // Function to update step visualization
+        function updateStepProgress(currentStep) {
+            progressSteps.forEach((step, index) => {
+                const stepElement = step;
+                const icon = stepElement.querySelector('.step-icon');
+
+                if (index < currentStep) {
+                    // Completed steps
+                    stepElement.classList.remove('active');
+                    stepElement.classList.add('completed');
+                    icon.innerHTML = '✓';
+                } else if (index === currentStep) {
+                    // Current step
+                    stepElement.classList.add('active');
+                    stepElement.classList.remove('completed');
+                    icon.innerHTML = index + 1;
+                } else {
+                    // Future steps
+                    stepElement.classList.remove('active', 'completed');
+                    icon.innerHTML = index + 1;
+                }
+            });
+        }
+
+        // Event Listener
+        form.addEventListener("submit", function(e) {
+            e.preventDefault(); // Stop default HTML submit
+
+            // Capture form data immediately
+            const formData = new FormData(form);
+
+            // 1. Transition State: FORM -> LOADING
+            formState.classList.add("hidden");
+            loadingState.classList.remove("hidden");
+
+            // 2. Start Animation Loop with Step Progress
+            let stepIndex = 0;
+            updateStepProgress(stepIndex); // Start with first step
+
+            const textInterval = setInterval(() => {
+                if (stepIndex < loadingSteps.length) {
+                    loadingMessage.innerText = loadingSteps[stepIndex];
+                    updateStepProgress(stepIndex);
+                    stepIndex++;
+                }
+            }, 1500); // Update every 1.5 seconds - smooth and engaging
+
+            // 3. Wait for animation to complete, THEN submit
+            // 6 steps × 1.5 seconds = 9 seconds total
+            setTimeout(() => {
+                clearInterval(textInterval); // Stop the interval
+
+                // Mark all steps as completed
+                progressSteps.forEach((step) => {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                    step.querySelector('.step-icon').innerHTML = '✓';
+                });
+
+                // Now submit to Formspree in the background
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Form submission failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Network error:', error);
+                });
+
+                // Show all checkmarks for 1 second, then success
+                setTimeout(() => {
+                    loadingState.classList.add("hidden");
+                    successState.classList.remove("hidden");
+                }, 1000); // 1 second to see all checkmarks
+
+            }, 9000); // Wait 9 seconds for all steps to complete (6 steps × 1.5 seconds)
+        });
+    </script>
+</body>
+</html>
