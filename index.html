@@ -113,6 +113,14 @@
             color: #94a3b8;
         }
 
+        input:invalid:not(:placeholder-shown) {
+            border-color: #ef4444;
+        }
+
+        input:valid:not(:placeholder-shown) {
+            border-color: var(--success-green);
+        }
+
         button {
             background: linear-gradient(135deg, var(--brand-teal) 0%, var(--brand-light-blue) 100%);
             color: white;
@@ -317,17 +325,38 @@
                     <!-- Hidden field for custom email subject -->
                     <input type="hidden" name="_subject" value="New Phase Zero Analysis Request">
 
-                    <label for="name">Your Name</label>
-                    <input type="text" name="name" id="name" placeholder="John Doe" required autocomplete="name">
-
-                    <label for="email">Contact Email</label>
-                    <input type="email" name="email" id="email" placeholder="your.email@company.com" required autocomplete="email">
-
                     <label for="address">Property Address</label>
-                    <input type="text" name="address" id="address" placeholder="123 Main Street, City, State, ZIP" required autocomplete="street-address">
+                    <input
+                        type="text"
+                        name="address"
+                        id="address"
+                        placeholder="123 Main Street, City, State, ZIP"
+                        required
+                        minlength="5"
+                        autocomplete="street-address">
 
                     <label for="vision">Project Vision (Optional)</label>
                     <input type="text" name="vision" id="vision" placeholder="e.g., Mixed-use development, Affordable housing">
+
+                    <label for="name">Your Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder="John Doe"
+                        required
+                        minlength="2"
+                        autocomplete="name">
+
+                    <label for="email">Contact Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        placeholder="your.email@company.com"
+                        required
+                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                        autocomplete="email">
 
                     <button type="submit">Start Analysis →</button>
                 </form>
@@ -449,6 +478,30 @@
         // Event Listener
         form.addEventListener("submit", function(e) {
             e.preventDefault(); // Stop default HTML submit
+
+            // Validate required fields
+            const nameInput = document.getElementById("name");
+            const emailInput = document.getElementById("email");
+            const addressInput = document.getElementById("address");
+
+            // Check if all required fields are filled
+            if (!nameInput.value.trim() || nameInput.value.trim().length < 2) {
+                alert("Please enter your name (at least 2 characters)");
+                nameInput.focus();
+                return;
+            }
+
+            if (!emailInput.value.trim() || !emailInput.checkValidity()) {
+                alert("Please enter a valid email address");
+                emailInput.focus();
+                return;
+            }
+
+            if (!addressInput.value.trim() || addressInput.value.trim().length < 5) {
+                alert("Please enter a valid property address");
+                addressInput.focus();
+                return;
+            }
 
             // Capture form data immediately
             const formData = new FormData(form);
